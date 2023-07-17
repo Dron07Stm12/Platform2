@@ -27,12 +27,14 @@ namespace Platform2
 
             //јргументы  Ч это объект HttpContext и функци€, котора€ вызываетс€, чтобы указать ASP.NET Core передать запрос
             // к следующему компоненту промежуточного программного обеспечени€ в конвейере.
+
             app.Use( async delegate (HttpContext context, Func<Task> task)
             {
+                //очередность прохода по конвееру
                 await task();
                 await  context.Response.WriteAsync($" \n Status code: {context.Response.StatusCode}");             
             });
-
+            //короткое замыкание
             app.Use(async delegate (HttpContext context, Func<Task> tsk) {
 
                 if (context.Request.Path == "/short")
