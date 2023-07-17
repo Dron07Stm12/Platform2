@@ -25,45 +25,28 @@ namespace Platform2
                 app.UseDeveloperExceptionPage();
             }
 
-            //јргументы  Ч это объект HttpContext и функци€, котора€ вызываетс€, чтобы указать ASP.NET Core передать запрос
-            // к следующему компоненту промежуточного программного обеспечени€ в конвейере.
 
-            app.Use( async delegate (HttpContext context, Func<Task> task)
-            {
-                //очередность прохода по конвееру
-                await task();
-                await  context.Response.WriteAsync($" \n Status code: {context.Response.StatusCode}");             
-            });
-            //короткое замыкание
-            app.Use(async delegate (HttpContext context, Func<Task> tsk) {
-
-                if (context.Request.Path == "/short")
-                {
-                    await context.Response.WriteAsync("short");
-                }
-                else
-                {
-                      await tsk();  
-                }
-            
-            });
-
-
-
-            app.Use(async (context, task) =>
+            //ветвь в конвеере
+            app.Map("/branch", delegate (IApplicationBuilder branch)
             {
 
-                if (context.Request.Method == HttpMethods.Get && context.Request.Query["custom"] == "true")
-                {
-                    await context.Response.WriteAsync("Custom3 Middleware\n");
-                }
-                await task();
-            });
+                branch.UseMiddleware<QueryStringMiddleware>();
 
+                branch.Use(async delegate (HttpContext context, Func<Task> func)
+                {
+                    await context.Response.WriteAsync("branch Middlware");
+                    await func();
+                });
+
+                branch.Use(async delegate (HttpContext context, Func<Task> func) {
+                    await context.Response.WriteAsync("\n new Use");           
+                });
+
+            });
+          
             app.UseMiddleware<QueryStringMiddleware>();
 
             app.UseRouting();
-
 
             app.UseEndpoints(delegate (IEndpointRouteBuilder endpoint)
             {
@@ -156,5 +139,73 @@ namespace Platform2
 
 //        //}); });
 
+//    }
+//}
+
+
+
+
+
+
+//public class Startup
+//{
+//    public void ConfigureServices(IServiceCollection services)
+//    {
+//    }
+//    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+//    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+//    {
+//        if (env.IsDevelopment())
+//        {
+//            app.UseDeveloperExceptionPage();
+//        }
+
+//        //јргументы  Ч это объект HttpContext и функци€, котора€ вызываетс€, чтобы указать ASP.NET Core передать запрос
+//        // к следующему компоненту промежуточного программного обеспечени€ в конвейере.
+
+//        app.Use(async delegate (HttpContext context, Func<Task> task)
+//        {
+//            //очередность прохода по конвееру
+//            await task();
+//            await context.Response.WriteAsync($" \n Status code: {context.Response.StatusCode}");
+//        });
+//        //короткое замыкание
+//        app.Use(async delegate (HttpContext context, Func<Task> tsk) {
+
+//            if (context.Request.Path == "/short")
+//            {
+//                await context.Response.WriteAsync("short");
+//            }
+//            else
+//            {
+//                await tsk();
+//            }
+
+//        });
+
+
+
+//        app.Use(async (context, task) =>
+//        {
+
+//            if (context.Request.Method == HttpMethods.Get && context.Request.Query["custom"] == "true")
+//            {
+//                await context.Response.WriteAsync("Custom3 Middleware\n");
+//            }
+//            await task();
+//        });
+
+//        app.UseMiddleware<QueryStringMiddleware>();
+
+//        app.UseRouting();
+
+
+//        app.UseEndpoints(delegate (IEndpointRouteBuilder endpoint)
+//        {
+//            endpoint.MapGet("/", async delegate (HttpContext context)
+//            {
+//                await context.Response.WriteAsync("Hello Dron");
+//            });
+//        });
 //    }
 //}
