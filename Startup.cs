@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Platform2.Platform2_Middleware;
 
 namespace Platform2
 {
@@ -25,59 +26,71 @@ namespace Platform2
             }
 
             //используем делегат Func
-            Func<HttpContext, Func<Task>,Task> func = delegate (HttpContext context,Func<Task> task) {
+            Func<HttpContext, Func<Task>, Task> func = async delegate (HttpContext context, Func<Task> task)
+            {
 
-                if (context.Request.Method == HttpMethods.Get && context.Request.Query["custom"] == "true" )
+                if (context.Request.Method == HttpMethods.Get && context.Request.Query["custom"] == "true")
                 {
-                    Task tsk0 = context.Response.WriteAsync("Custom Middleware\n");
-                    return tsk0;
-                   // return context.Response.WriteAsync("Custom Middleware\n");
+                    // Task tsk0 = context.Response.WriteAsync("Custom Middleware\n");
+                    //  return tsk0;
+                   await context.Response.WriteAsync("Custom Middleware\n");
                 }
-                Task tsk = task();
-                return tsk;
-                //return task();
+                // Task tsk = task();
+                //  return tsk;
+               await task();
 
             };
             //ложим эту ссылку в метод Use дл€ регистрации компонента промежуточного сло€
             app.Use(func);
-            //јргументы  Ч это объект HttpContext и функци€, котора€ вызываетс€, чтобы указать ASP.NET Core передать запрос
-            //к следующему компоненту промежуточного программного обеспечени€ в конвейере.
-            app.Use(delegate (HttpContext context, Func<Task> task) {
 
-                if (context.Request.Method == HttpMethods.Get && context.Request.Query["custom2"] == "true")
+            //јргументы  Ч это объект HttpContext и функци€, котора€ вызываетс€, чтобы указать ASP.NET Core передать запрос
+            // к следующему компоненту промежуточного программного обеспечени€ в конвейере.
+            app.Use( async delegate (HttpContext context, Func<Task> task)
+            {
+                if (context.Request.Method == HttpMethods.Get && context.Request.Query["custom"] == "true")
                 {
-                    return context.Response.WriteAsync("Custom2 Middleware\n");
+                   await  context.Response.WriteAsync("Custom2 Middleware\n");
+                   
                 }
-                return task.Invoke();           
+                
+               await task();
+              
             });
 
-            app.Use(async(context,task) => {
+            app.Use(async (context, task) =>
+            {
 
-                if (context.Request.Method == HttpMethods.Get && context.Request.Query["custom3"] == "true")
+                if (context.Request.Method == HttpMethods.Get && context.Request.Query["custom"] == "true")
                 {
                     await context.Response.WriteAsync("Custom3 Middleware\n");
                 }
                 await task();
             });
 
+            app.UseMiddleware<QueryStringMiddleware>();
 
             app.UseRouting();
 
-            app.UseEndpoints(delegate (IEndpointRouteBuilder endpoint) {  endpoint.MapGet("/", delegate (HttpContext context) {
-                return context.Response.WriteAsync("Hello Dron"); }); 
+
+            app.UseEndpoints(delegate (IEndpointRouteBuilder endpoint)
+            {
+                endpoint.MapGet("/", async delegate (HttpContext context)
+                {
+                    await context.Response.WriteAsync("Hello Dron");
+                });
             });
 
-            app.UseEndpoints(delegate (IEndpointRouteBuilder endpoint) { endpoint.MapGet("/connection", delegate (HttpContext context) {
+            //app.UseEndpoints(delegate (IEndpointRouteBuilder endpoint) { endpoint.MapGet("/connection", delegate (HttpContext context) {
 
-                return context.Response.WriteAsync($"{context.Request.ContentLength ?? 3}," +
-                    $"{context.Request.IsHttps}, {context.Request.Path}," +
-                    $"{context.Request.Query["con"].Count}," +
-                    $"{context.Response.StatusCode}," +
-                    $"{context.Response.ContentType = "string"}," +
-                    $"{context.Response.Headers["responce"].Count}");
-            
-            }); });
-           
+            //    return context.Response.WriteAsync($"{context.Request.ContentLength ?? 3}," +
+            //        $"{context.Request.IsHttps}, {context.Request.Path}," +
+            //        $"{context.Request.Query["con"].Count}," +
+            //        $"{context.Response.StatusCode}," +
+            //        $"{context.Response.ContentType = "string"}," +
+            //        $"{context.Response.Headers["responce"].Count}");
+
+            //}); });
+
         }
     }
 }
