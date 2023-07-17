@@ -35,6 +35,7 @@ namespace Platform2
                 }
                 Task tsk = task();
                 return tsk;
+                //return task();
 
             };
             //ложим эту ссылку в метод Use для регистрации компонента промежуточного слоя
@@ -65,6 +66,17 @@ namespace Platform2
             app.UseEndpoints(delegate (IEndpointRouteBuilder endpoint) {  endpoint.MapGet("/", delegate (HttpContext context) {
                 return context.Response.WriteAsync("Hello Dron"); }); 
             });
+
+            app.UseEndpoints(delegate (IEndpointRouteBuilder endpoint) { endpoint.MapGet("/connection", delegate (HttpContext context) {
+
+                return context.Response.WriteAsync($"{context.Request.ContentLength ?? 3}," +
+                    $"{context.Request.IsHttps}, {context.Request.Path}," +
+                    $"{context.Request.Query["con"].Count}," +
+                    $"{context.Response.StatusCode}," +
+                    $"{context.Response.ContentType = "string"}," +
+                    $"{context.Response.Headers["responce"].Count}");
+            
+            }); });
            
         }
     }
