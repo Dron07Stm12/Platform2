@@ -32,11 +32,17 @@ namespace Platform2
 
                 branch.UseMiddleware<QueryStringMiddleware>();
 
+               
+
                 branch.Use(async delegate (HttpContext context, Func<Task> func)
                 {
-                    await context.Response.WriteAsync("branch Middlware");
+                    await context.Response.WriteAsync("\n branch Middlware");
                     await func();
                 });
+
+                branch.Run(new QueryStringMiddleware().Invoke);
+
+
 
                 branch.Run(delegate (HttpContext context) { return context.Response.WriteAsync("\n run"); });
 

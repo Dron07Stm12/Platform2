@@ -14,16 +14,22 @@ namespace Platform2.Platform2_Middleware
                  this.request = request;
         }
 
-      
+        public QueryStringMiddleware()
+        {
+                
+        }
         public  async Task Invoke(HttpContext context) {
 
             if (context.Request.Method == HttpMethods.Get && context.Request.Query["custom"] == "true")
             {
-                await context.Response.WriteAsync("Class-based Middleware\n");
+                await context.Response.WriteAsync("\n Class-based Middleware");
             }
 
-
+            if (request != null)
+            {
                 await request(context);
+            }
+               
             
 
         }
