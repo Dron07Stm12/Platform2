@@ -38,12 +38,16 @@ namespace Platform2
                     await func();
                 });
 
+                branch.Run(delegate (HttpContext context) { return context.Response.WriteAsync("\n run"); });
+
                 branch.Use(async delegate (HttpContext context, Func<Task> func) {
                     await context.Response.WriteAsync("\n new Use");           
                 });
 
             });
-          
+
+           
+
             app.UseMiddleware<QueryStringMiddleware>();
 
             app.UseRouting();
