@@ -9,9 +9,9 @@ namespace Platform2.Platform2_Middleware
     {
         private RequestDelegate request;
 
-        public QueryStringMiddleware(RequestDelegate next)
+        public QueryStringMiddleware(RequestDelegate request)
         {
-                 request = next;
+                 this.request = request;
         }
 
         public  async Task Invoke(HttpContext context) {
