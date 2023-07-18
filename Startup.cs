@@ -28,29 +28,30 @@ namespace Platform2
 
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<MessageOptions> options)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env/*, IOptions<MessageOptions> options*/)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
-            app.Use(async delegate (HttpContext context, Func<Task> func) {
+            //app.Use(async delegate (HttpContext context, Func<Task> func)
+            //{
 
-                if (context.Request.Path == "/location")
-                {
-                    MessageOptions message = options.Value;
-                    await context.Response.WriteAsync($"{message.CountryName}, \n {message.CityName}, \n {message.Pipell}");
-                }
+            //    if (context.Request.Path == "/location")
+            //    {
+            //        MessageOptions message = options.Value;
+            //        await context.Response.WriteAsync($"{message.CountryName}, \n {message.CityName}, \n {message.Pipell}");
+            //    }
 
-                else
-                {
-                    await func();    
-                }
-            
-            });
-           
+            //    else
+            //    {
+            //        await func();
+            //    }
 
+            //});
+
+            app.UseMiddleware<LocationMiddleware>();
             app.UseRouting();
 
             app.UseEndpoints(delegate (IEndpointRouteBuilder endpoint)
@@ -242,3 +243,58 @@ namespace Platform2
 //    });
 
 //});
+
+
+
+
+
+
+//    public class Startup
+//    {
+//        public void ConfigureServices(IServiceCollection services)
+//        {
+
+
+//            services.Configure(delegate (MessageOptions message) {
+//                message.CityName = "Stachanov";
+//                message.CountryName = "Donbass";
+//                message.Pipell = 10;
+//            });
+
+//        }
+//        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+//        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<MessageOptions> options)
+//        {
+//            if (env.IsDevelopment())
+//            {
+//                app.UseDeveloperExceptionPage();
+//            }
+
+//            app.Use(async delegate (HttpContext context, Func<Task> func)
+//            {
+
+//                if (context.Request.Path == "/location")
+//                {
+//                    MessageOptions message = options.Value;
+//                    await context.Response.WriteAsync($"{message.CountryName}, \n {message.CityName}, \n {message.Pipell}");
+//                }
+
+//                else
+//                {
+//                    await func();
+//                }
+
+//            });
+
+//            app.UseMiddleware<LocationMiddleware>();
+//            app.UseRouting();
+
+//            app.UseEndpoints(delegate (IEndpointRouteBuilder endpoint)
+//            {
+//                endpoint.MapGet("/", async delegate (HttpContext context)
+//                {
+//                    await context.Response.WriteAsync("Hello Dron");
+//                });
+//            });
+//        }
+//    }
