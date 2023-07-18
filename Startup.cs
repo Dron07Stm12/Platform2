@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Platform2.Platform2_Middleware;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace Platform2
 {
@@ -16,45 +18,38 @@ namespace Platform2
     {
         public void ConfigureServices(IServiceCollection services)
         {
+           
+
+            services.Configure(delegate (MessageOptions message) {
+                message.CityName = "Stachanov";
+                message.CountryName = "Donbass";
+                message.Pipell = 10;
+            });
+
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IOptions<MessageOptions> options)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
 
+            app.Use(async delegate (HttpContext context, Func<Task> func) {
 
-            //ветвь в конвеере
-            app.Map("/branch", delegate (IApplicationBuilder branch)
-            {
-
-                branch.UseMiddleware<QueryStringMiddleware>();
-
-               
-
-                branch.Use(async delegate (HttpContext context, Func<Task> func)
+                if (context.Request.Path == "/location")
                 {
-                    await context.Response.WriteAsync("\n branch Middlware");
-                    await func();
-                });
+                    MessageOptions message = options.Value;
+                    await context.Response.WriteAsync($"{message.CountryName}, \n {message.CityName}, \n {message.Pipell}");
+                }
 
-                branch.Run(new QueryStringMiddleware().Invoke);
-
-
-
-                branch.Run(delegate (HttpContext context) { return context.Response.WriteAsync("\n run"); });
-
-                branch.Use(async delegate (HttpContext context, Func<Task> func) {
-                    await context.Response.WriteAsync("\n new Use");           
-                });
-
+                else
+                {
+                    await func();    
+                }
+            
             });
-
            
-
-            app.UseMiddleware<QueryStringMiddleware>();
 
             app.UseRouting();
 
@@ -219,3 +214,31 @@ namespace Platform2
 //        });
 //    }
 //}
+
+
+
+//ветвь в конвеере
+//app.Map("/branch", delegate (IApplicationBuilder branch)
+//{
+
+//    branch.UseMiddleware<QueryStringMiddleware>();
+
+
+
+//    branch.Use(async delegate (HttpContext context, Func<Task> func)
+//    {
+//        await context.Response.WriteAsync("\n branch Middlware");
+//        await func();
+//    });
+
+//    branch.Run(new QueryStringMiddleware().Invoke);
+
+
+
+//    branch.Run(delegate (HttpContext context) { return context.Response.WriteAsync("\n run"); });
+
+//    branch.Use(async delegate (HttpContext context, Func<Task> func) {
+//        await context.Response.WriteAsync("\n new Use");
+//    });
+
+//});
