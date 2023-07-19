@@ -35,23 +35,8 @@ namespace Platform2
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.Use(async delegate (HttpContext context, Func<Task> func)
-            //{
-
-            //    if (context.Request.Path == "/location")
-            //    {
-            //        MessageOptions message = options.Value;
-            //        await context.Response.WriteAsync($"{message.CountryName}, \n {message.CityName}, \n {message.Pipell}");
-            //    }
-
-            //    else
-            //    {
-            //        await func();
-            //    }
-
-            //});
-
-            app.UseMiddleware<LocationMiddleware>();
+            app.UseMiddleware<Population>();
+            app.UseMiddleware<Capital>();
             app.UseRouting();
 
             app.UseEndpoints(delegate (IEndpointRouteBuilder endpoint)
